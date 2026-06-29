@@ -1,199 +1,356 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MyFinanceApp</title>
+  <title>Helm — Personal Finance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
-    * {
-      margin: 0;
-      box-sizing: border-box;
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: system-ui, sans-serif;
-      background: #0f172a;
-      color: #e2e8f0;
+      background: #141E2E;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 2rem;
+      padding: 3rem 2rem 2.5rem;
+      font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+      position: relative;
+      overflow: hidden;
     }
 
-    .badge {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 999px;
-      padding: .25rem .75rem;
-      font-size: .8rem;
-      color: #94a3b8;
-      margin-bottom: 1.5rem;
+    #nautical-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
     }
 
-    h1 {
-      font-size: 3rem;
-      font-weight: 800;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-
-    p.tagline {
-      color: #94a3b8;
-      font-size: 1.15rem;
-      text-align: center;
-      max-width: 480px;
-      margin-bottom: 2.5rem;
-    }
-
-    .buttons {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .btn {
-      padding: .75rem 1.75rem;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: opacity .15s;
-    }
-
-    .btn:hover {
-      opacity: .85;
-    }
-
-    .btn-primary {
-      background: #6366f1;
-      color: #fff;
-    }
-
-    .btn-secondary {
-      background: #1e293b;
-      color: #e2e8f0;
-      border: 1px solid #334155;
-    }
-
-    .assets {
-      margin-top: 2.5rem;
+    .content {
+      position: relative;
+      z-index: 1;
       display: flex;
       flex-direction: column;
-      gap: .5rem;
       align-items: center;
     }
 
-    .asset-link {
-      color: #818cf8;
-      font-size: .9rem;
+    /* Wordmark */
+    .helm-wordmark {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 2.5rem;
+    }
+    .helm-wordmark svg {
+      width: 28px;
+      height: 28px;
+      stroke: #D9A94A;
+      fill: #E4ECF7;
+    }
+    .helm-wordmark-text {
+      font-family: 'Fraunces', serif;
+      font-size: 1.4rem;
+      font-weight: 400;
+      color: #E4ECF7;
+      letter-spacing: 0.01em;
+    }
+
+    /* Eyebrow */
+    .helm-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #D9A94A;
+      margin-bottom: 1rem;
+    }
+
+    /* Headline */
+    .helm-headline {
+      font-family: 'Fraunces', serif;
+      font-size: 2.8rem;
+      font-weight: 300;
+      color: #E4ECF7;
+      text-align: center;
+      line-height: 1.2;
+      max-width: 520px;
+      margin-bottom: 1rem;
+    }
+    .helm-headline em {
+      font-style: italic;
+      color: #D9A94A;
+    }
+
+    /* Subheading */
+    .helm-sub {
+      font-size: 0.95rem;
+      color: #8A9CB5;
+      text-align: center;
+      max-width: 400px;
+      line-height: 1.65;
+      margin-bottom: 2.25rem;
+    }
+
+    /* Version badge */
+    .helm-version-badge {
+      font-size: 0.72rem;
+      font-family: 'Inter', monospace;
+      background: rgba(14, 22, 36, 0.7);
+      border: 1px solid #1E2D42;
+      border-radius: 999px;
+      padding: 0.2rem 0.65rem;
+      color: #8A9CB5;
+      margin-bottom: 1.5rem;
+    }
+    .helm-version-badge span { color: #D9A94A; }
+
+    /* CTA row */
+    .helm-cta-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 1.75rem;
+    }
+
+    .btn-primary {
+      background: #4D8FD6;
+      color: #080E18;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.65rem 1.5rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
       text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: #6AAED6; }
+
+    .btn-ghost {
+      background: transparent;
+      color: #E4ECF7;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0.65rem 1.25rem;
+      border-radius: 6px;
+      border: 1px solid #1E2D42;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-ghost:hover { border-color: #4D8FD6; color: #6AAED6; }
+
+    /* Per-platform asset links */
+    .helm-asset-list {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+    .helm-asset-link {
+      font-size: 0.78rem;
+      color: #8A9CB5;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: color 0.15s;
+    }
+    .helm-asset-link:hover { color: #D9A94A; }
+    .helm-divider {
+      width: 1px;
+      height: 16px;
+      background: #1E2D42;
     }
 
-    .asset-link:hover {
-      text-decoration: underline;
-    }
-
-    #version {
-      font-family: monospace;
-      color: #6366f1;
-    }
-
-    .error {
-      color: #f87171;
-      font-size: .9rem;
-      margin-top: 1rem;
+    @media (max-width: 480px) {
+      .helm-headline { font-size: 2rem; }
     }
   </style>
 </head>
-
 <body>
 
-  <div class="badge">Open Source · Free Forever</div>
-  <h1>
-    <svg xmlns="http://www.w3.org/2000/svg" class="size-7 stroke-secondary fill-base-content" viewBox="0 0 24 24">
-      <!--Boxicons v3.0.8 https://boxicons.com | License  https://docs.boxicons.com/free-->
-      <path
-        d="M18.36 13.36c-.4.4-.83.75-1.29 1.07l-2.63-5.7c.35-.49.56-1.09.56-1.73 0-1.3-.84-2.4-2-2.82V2h-2v2.18C9.84 4.59 9 5.69 9 7c0 .65.21 1.24.56 1.73l-2.63 5.7c-.46-.31-.89-.67-1.29-1.07l-.71-.71-1.41 1.41.71.71c.57.57 1.19 1.06 1.86 1.49l-2.22 4.81 1.82.84 2.18-4.73c1.32.53 2.71.81 4.14.81s2.82-.27 4.14-.81c1.37-.55 2.59-1.37 3.64-2.42l.71-.71-1.41-1.41-.71.71ZM12 6c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1m-3.3 9.37 2.53-5.48c.25.07.5.11.77.11s.52-.05.77-.11l2.53 5.48c-2.11.83-4.49.83-6.6 0m8.28 3.64 1.34 2.91 1.82-.84-1.38-2.99c-.57.35-1.16.66-1.78.92">
-      </path>
-    </svg>
-    Helm
-  </h1>
-  <p class="tagline">Take control of your finances. Budgets, investments, and net worth — all on your desktop.</p>
+  <canvas id="nautical-canvas" aria-hidden="true"></canvas>
 
-  <div class="buttons">
-    <!-- Primary download button — href filled dynamically -->
-    <a id="download-btn" class="btn btn-primary" href="#">
-      ⬇ Download <span id="version">…</span>
-    </a>
-    <a href="https://github.com/OWNER/APP-REPO" class="btn btn-secondary">
-      View on GitHub
-    </a>
+  <div class="content">
+
+    <div class="helm-wordmark">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M18.36 13.36c-.4.4-.83.75-1.29 1.07l-2.63-5.7c.35-.49.56-1.09.56-1.73 0-1.3-.84-2.4-2-2.82V2h-2v2.18C9.84 4.59 9 5.69 9 7c0 .65.21 1.24.56 1.73l-2.63 5.7c-.46-.31-.89-.67-1.29-1.07l-.71-.71-1.41 1.41.71.71c.57.57 1.19 1.06 1.86 1.49l-2.22 4.81 1.82.84 2.18-4.73c1.32.53 2.71.81 4.14.81s2.82-.27 4.14-.81c1.37-.55 2.59-1.37 3.64-2.42l.71-.71-1.41-1.41-.71.71ZM12 6c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1m-3.3 9.37 2.53-5.48c.25.07.5.11.77.11s.52-.05.77-.11l2.53 5.48c-2.11.83-4.49.83-6.6 0m8.28 3.64 1.34 2.91 1.82-.84-1.38-2.99c-.57.35-1.16.66-1.78.92"/>
+      </svg>
+      <span class="helm-wordmark-text">Helm</span>
+    </div>
+
+    <p class="helm-eyebrow">Open source · Free forever</p>
+
+    <h1 class="helm-headline">Your finances,<br><em>finally</em> under control.</h1>
+
+    <p class="helm-sub">Budgets, net worth, and investments — all in one desktop app. No subscriptions, no cloud, no compromise.</p>
+
+    <div class="helm-version-badge">
+      Latest release &nbsp;·&nbsp; <span id="version-tag">fetching…</span>
+    </div>
+
+    <div class="helm-cta-row">
+      <a href="#" id="dl-btn" class="btn-primary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download for <span id="os-label">your OS</span>
+      </a>
+      <a href="https://github.com/OWNER/APP-REPO" class="btn-ghost">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+        View on GitHub
+      </a>
+    </div>
+
+    <div class="helm-asset-list" id="asset-list"></div>
+
   </div>
 
-  <!-- Per-platform asset links -->
-  <div class="assets" id="assets"></div>
-  <p id="error" class="error" hidden></p>
-
   <script>
-    const OWNER = 'rgh-helm';         // ← your GitHub username
-    const REPO = 'Helm';     // ← your app repo name
+    // ── Nautical background ──────────────────────────────────────────────────
+    (function () {
+      const canvas = document.getElementById('nautical-canvas');
+      const LINE_COUNT  = 25;
+      const LINE_OPACITY = 0.13;
+      const DRIFT_SPEED  = 7;
+      const LINE_RGB     = '77,143,214'; // #4D8FD6 — helm-dark primary
+      let driftOffset = 0;
 
-    // Guess the best asset for the visitor's OS (best-effort)
-    function pickPrimary(assets) {
-      const ua = navigator.userAgent.toLowerCase();
-      const prefs = ua.includes('win') ? ['.exe', '.msi', '-windows'] :
-        ua.includes('mac') ? ['.dmg', '-macos', '-mac'] :
-          ['.appimage', '.deb', '-linux'];
-      for (const p of prefs)
-        for (const a of assets)
-          if (a.name.toLowerCase().includes(p)) return a;
-      return assets[0]; // fallback
-    }
-
-    async function loadRelease() {
-      try {
-        const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases/latest`);
-        if (!res.ok) throw new Error(`GitHub API ${res.status}`);
-        const data = await res.json();
-
-        const version = data.tag_name;                      // e.g. "v1.4.2"
-        const assets = data.assets;                        // downloadable files
-        const primary = assets.length ? pickPrimary(assets) : null;
-
-        document.getElementById('version').textContent = version;
-
-        if (primary) {
-          document.getElementById('download-btn').href = primary.browser_download_url;
-        } else {
-          // Fall back to the release page itself
-          document.getElementById('download-btn').href = data.html_url;
-        }
-
-        // List all assets as secondary links
-        const container = document.getElementById('assets');
-        for (const asset of assets) {
-          const a = document.createElement('a');
-          a.href = asset.browser_download_url;
-          a.className = 'asset-link';
-          a.textContent = `${asset.name} (${(asset.size / 1e6).toFixed(1)} MB)`;
-          container.appendChild(a);
-        }
-
-      } catch (err) {
-        document.getElementById('version').textContent = '';
-        document.getElementById('download-btn').href = `https://github.com/${OWNER}/${REPO}/releases`;
-        document.getElementById('download-btn').textContent = 'View Releases';
-        document.getElementById('error').hidden = false;
-        document.getElementById('error').textContent = 'Could not load latest release. ' + err.message;
+      function resize() {
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width  = window.innerWidth  * dpr;
+        canvas.height = window.innerHeight * dpr;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
       }
-    }
 
-    loadRelease();
+      function drawContours(ctx, W, H, t) {
+        const spacing = H / (LINE_COUNT + 1);
+        ctx.lineWidth = 1;
+        for (let i = 0; i < LINE_COUNT; i++) {
+          const baseY = (i + 1) * spacing;
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(${LINE_RGB},${LINE_OPACITY})`;
+          const segs = 80;
+          for (let s = 0; s <= segs; s++) {
+            const x  = (s / segs) * W;
+            const nx = s / segs;
+            const waveA = Math.sin(nx * Math.PI * 2.5 + i * 1.1 + t * 0.4)  * spacing * 0.22;
+            const waveB = Math.sin(nx * Math.PI * 1.3 - i * 0.7 + t * 0.25) * spacing * 0.10;
+            const y = baseY + waveA + waveB;
+            if (s === 0) ctx.moveTo(x, y);
+            else         ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+      }
+
+      function draw() {
+        if (document.hidden) { requestAnimationFrame(draw); return; }
+        const ctx = canvas.getContext('2d');
+        const W = window.innerWidth;
+        const H = window.innerHeight;
+        ctx.clearRect(0, 0, W, H);
+        drawContours(ctx, W, H, driftOffset);
+        driftOffset += DRIFT_SPEED * 0.003;
+        requestAnimationFrame(draw);
+      }
+
+      resize();
+      draw();
+      window.addEventListener('resize', () => { resize(); });
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) draw(); });
+    })();
+
+    // ── GitHub release fetching ──────────────────────────────────────────────
+    (function () {
+      const OWNER = 'rgh-helm';     // ← your GitHub username
+      const REPO  = 'Helm'; // ← your app repo name
+
+      function detectOS() {
+        const ua = navigator.userAgent.toLowerCase();
+        if (ua.includes('win')) return { label: 'Windows', exts: ['.exe', '.msi', '-windows', '-win'] };
+        if (ua.includes('mac')) return { label: 'macOS',   exts: ['.dmg', '-macos', '-mac', '-darwin'] };
+        return                         { label: 'Linux',   exts: ['.appimage', '.deb', '-linux'] };
+      }
+
+      function pickAsset(assets, exts) {
+        for (const ext of exts)
+          for (const a of assets)
+            if (a.name.toLowerCase().includes(ext)) return a;
+        return assets[0];
+      }
+
+      async function loadRelease() {
+        try {
+          const res  = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases/latest`);
+          if (!res.ok) throw new Error(`GitHub API ${res.status}`);
+          const data = await res.json();
+
+          const { label, exts } = detectOS();
+          const primary = data.assets.length ? pickAsset(data.assets, exts) : null;
+
+          document.getElementById('version-tag').textContent = data.tag_name;
+          document.getElementById('os-label').textContent    = label;
+
+          const btn = document.getElementById('dl-btn');
+          btn.href = primary ? primary.browser_download_url : data.html_url;
+
+          const list = document.getElementById('asset-list');
+          const platforms = [
+            { label: 'Windows', exts: ['.exe', '.msi', '-windows', '-win'] },
+            { label: 'macOS',   exts: ['.dmg', '-macos', '-mac', '-darwin'] },
+            { label: 'Linux',   exts: ['.appimage', '.deb', '-linux'] },
+          ];
+
+          platforms.forEach((p, i) => {
+            const asset = pickAsset(data.assets, p.exts);
+            if (!asset) return;
+            if (i > 0) {
+              const divider = document.createElement('div');
+              divider.className = 'helm-divider';
+              list.appendChild(divider);
+            }
+            const a = document.createElement('a');
+            a.href      = asset.browser_download_url;
+            a.className = 'helm-asset-link';
+            a.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>${p.label}`;
+            list.appendChild(a);
+          });
+
+        } catch (err) {
+          document.getElementById('version-tag').textContent = 'see releases';
+          document.getElementById('dl-btn').href = `https://github.com/${OWNER}/${REPO}/releases`;
+          document.getElementById('os-label').textContent = '';
+        }
+      }
+
+      loadRelease();
+    })();
   </script>
-</body>
 
+</body>
 </html>
