@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MyFinanceApp</title>
+  <style>
+    * { margin: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; }
+    .badge { background: #1e293b; border: 1px solid #334155; border-radius: 999px; padding: .25rem .75rem; font-size: .8rem; color: #94a3b8; margin-bottom: 1.5rem; }
+    h1 { font-size: 3rem; font-weight: 800; margin-bottom: 1rem; text-align: center; }
+    p.tagline { color: #94a3b8; font-size: 1.15rem; text-align: center; max-width: 480px; margin-bottom: 2.5rem; }
+    .buttons { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    .btn { padding: .75rem 1.75rem; border-radius: 8px; font-size: 1rem; font-weight: 600; text-decoration: none; transition: opacity .15s; }
+    .btn:hover { opacity: .85; }
+    .btn-primary { background: #6366f1; color: #fff; }
+    .btn-secondary { background: #1e293b; color: #e2e8f0; border: 1px solid #334155; }
+    .assets { margin-top: 2.5rem; display: flex; flex-direction: column; gap: .5rem; align-items: center; }
+    .asset-link { color: #818cf8; font-size: .9rem; text-decoration: none; }
+    .asset-link:hover { text-decoration: underline; }
+    #version { font-family: monospace; color: #6366f1; }
+    .error { color: #f87171; font-size: .9rem; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+
+  <div class="badge">Open Source · Free Forever</div>
+  <h1>MyFinanceApp</h1>
+  <p class="tagline">Take control of your finances. Budgets, investments, and net worth — all on your desktop.</p>
+
+  <div class="buttons">
+    <!-- Primary download button — href filled dynamically -->
+    <a id="download-btn" class="btn btn-primary" href="#">
+      ⬇ Download <span id="version">…</span>
+    </a>
+    <a href="https://github.com/OWNER/APP-REPO" class="btn btn-secondary">
+      View on GitHub
+    </a>
+  </div>
+
+  <!-- Per-platform asset links -->
+  <div class="assets" id="assets"></div>
+  <p id="error" class="error" hidden></p>
+
+  <script>
+    const OWNER = 'OWNER';         // ← your GitHub username
+    const REPO  = 'APP-REPO';     // ← your app repo name
+
+    // Guess the best asset for the visitor's OS (best-effort)
+    function pickPrimary(assets) {
+      const ua = navigator.userAgent.toLowerCase();
+      const prefs = ua.includes('win')   ? ['.exe', '.msi', '-windows'] :
+                    ua.includes('mac')   ? ['.dmg', '-macos', '-mac']   :
+                                           ['.appimage', '.deb', '-linux'];
+      for (const p of prefs)
+        for (const a of assets)
+          if (a.name.toLowerCase().includes(p)) return a;
+      return assets[0]; // fallback
+    }
+
+    async function loadRelease() {
+      try {
+        const res  = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}/releases/latest`);
+        if (!res.ok) throw new Error(`GitHub API ${res.status}`);
+        const data = await res.json();
+
+        const version = data.tag_name;                      // e.g. "v1.4.2"
+        const assets  = data.assets;                        // downloadable files
+        const primary = assets.length ? pickPrimary(assets) : null;
+
+        document.getElementById('version').textContent = version;
+
+        if (primary) {
+          document.getElementById('download-btn').href = primary.browser_download_url;
+        } else {
+          // Fall back to the release page itself
+          document.getElementById('download-btn').href = data.html_url;
+        }
+
+        // List all assets as secondary links
+        const container = document.getElementById('assets');
+        for (const asset of assets) {
+          const a = document.createElement('a');
+          a.href      = asset.browser_download_url;
+          a.className = 'asset-link';
+          a.textContent = `${asset.name} (${(asset.size / 1e6).toFixed(1)} MB)`;
+          container.appendChild(a);
+        }
+
+      } catch (err) {
+        document.getElementById('version').textContent = '';
+        document.getElementById('download-btn').href = `https://github.com/${OWNER}/${REPO}/releases`;
+        document.getElementById('download-btn').textContent = 'View Releases';
+        document.getElementById('error').hidden = false;
+        document.getElementById('error').textContent = 'Could not load latest release. ' + err.message;
+      }
+    }
+
+    loadRelease();
+  </script>
+</body>
+</html>
