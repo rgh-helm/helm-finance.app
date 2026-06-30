@@ -263,7 +263,36 @@
       white-space: nowrap;
     }
 
-    .app-window-home {
+    .app-overlay-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      width: 100%;
+      max-width: 1280px;
+      height: 100%;
+      max-height: 940px;
+    }
+
+    .app-overlay-exit {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      align-self: flex-start;
+      background: rgba(14, 22, 36, 0.85);
+      color: #E4ECF7;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      border: 1px solid #1E2D42;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    .app-overlay-exit:hover { border-color: #D9A94A; color: #D9A94A; }
+
+    .app-window-expand {
       flex: 0 0 auto;
       display: inline-flex;
       align-items: center;
@@ -279,7 +308,13 @@
       cursor: pointer;
       transition: border-color 0.15s, color 0.15s;
     }
-    .app-window-home:hover { border-color: #4D8FD6; color: #6AAED6; }
+    .app-window-expand:hover { border-color: #4D8FD6; color: #6AAED6; }
+
+    /* "Fill the view" — just removes the window's size cap and the
+       overlay's breathing room, no actual Fullscreen API involved. */
+    .app-overlay.is-filled { padding: 0; }
+    .app-overlay.is-filled .app-overlay-stack { max-width: none; max-height: none; }
+    .app-overlay.is-filled .app-window { border-radius: 0; border: none; }
 
     .app-window-body {
       flex: 1 1 auto;
@@ -298,6 +333,8 @@
 
     @media (max-width: 640px) {
       .app-overlay { padding: 0; }
+      .app-overlay-stack { max-height: none; gap: 0; }
+      .app-overlay-exit { align-self: stretch; justify-content: center; border-radius: 0; }
       .app-window { max-height: none; border-radius: 0; border: none; }
     }
   </style>
@@ -355,26 +392,37 @@
   </div>
 
   <div class="app-overlay" id="app-overlay" role="dialog" aria-modal="true" aria-label="Helm — try it in your browser">
-    <div class="app-window">
-      <div class="app-window-titlebar">
-        <span class="app-window-dots"><span></span><span></span><span></span></span>
-        <span class="app-window-addressbar">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="11" width="18" height="11" rx="2"/>
-            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-          </svg>
-          <span>helm — running locally in your browser</span>
-        </span>
-        <button type="button" id="app-home-btn" class="app-window-home">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 10.5 12 3l9 7.5"/>
-            <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/>
-          </svg>
-          Home
-        </button>
-      </div>
-      <div class="app-window-body">
-        <iframe id="app-iframe" title="Helm app" src="about:blank"></iframe>
+    <div class="app-overlay-stack">
+      <button type="button" id="app-exit-btn" class="app-overlay-exit">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Exit preview — back to Helm download page
+      </button>
+      <div class="app-window">
+        <div class="app-window-titlebar">
+          <span class="app-window-dots"><span></span><span></span><span></span></span>
+          <span class="app-window-addressbar">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <span>helm — running locally in your browser</span>
+          </span>
+          <button type="button" id="app-expand-btn" class="app-window-expand">
+            <svg id="app-expand-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+              <path d="M21 8V5a2 2 0 0 0-2-2h-3"/>
+              <path d="M3 16v3a2 2 0 0 0 2 2h3"/>
+              <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+            </svg>
+            <span id="app-expand-label">Fill View</span>
+          </button>
+        </div>
+        <div class="app-window-body">
+          <iframe id="app-iframe" title="Helm app" src="about:blank"></iframe>
+        </div>
       </div>
     </div>
   </div>
@@ -382,11 +430,17 @@
   <script>
     // ── "Try it out" window overlay ──────────────────────────────────────────
     (function () {
-      const overlay  = document.getElementById('app-overlay');
-      const iframe   = document.getElementById('app-iframe');
-      const tryBtn   = document.getElementById('try-btn');
-      const homeBtn  = document.getElementById('app-home-btn');
+      const overlay     = document.getElementById('app-overlay');
+      const iframe       = document.getElementById('app-iframe');
+      const tryBtn        = document.getElementById('try-btn');
+      const exitBtn       = document.getElementById('app-exit-btn');
+      const expandBtn     = document.getElementById('app-expand-btn');
+      const expandIcon    = document.getElementById('app-expand-icon');
+      const expandLbl     = document.getElementById('app-expand-label');
       const APP_SRC  = './app/';
+
+      const EXPAND_ICON = expandIcon.innerHTML;
+      const COLLAPSE_ICON = '<path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/>';
 
       function openApp() {
         if (iframe.src === 'about:blank' || !iframe.src) iframe.src = APP_SRC;
@@ -396,14 +450,31 @@
 
       function closeApp() {
         overlay.classList.remove('is-open');
+        overlay.classList.remove('is-filled');
         document.body.classList.remove('app-overlay-active');
+        syncExpandButton();
         // Leave the iframe's src alone (rather than resetting to
         // about:blank) so reopening resumes exactly where the user left
         // off, since the app's in-session state lives in that frame.
       }
 
+      // "Fill view" just drops the window's size cap so it takes up the
+      // whole viewport — a CSS-only resize, not the OS-level Fullscreen
+      // API (no permission prompt, no F11-style exclusive mode).
+      function toggleFill() {
+        overlay.classList.toggle('is-filled');
+        syncExpandButton();
+      }
+
+      function syncExpandButton() {
+        const filled = overlay.classList.contains('is-filled');
+        expandIcon.innerHTML = filled ? COLLAPSE_ICON : EXPAND_ICON;
+        expandLbl.textContent = filled ? 'Restore' : 'Fill View';
+      }
+
       tryBtn.addEventListener('click', openApp);
-      homeBtn.addEventListener('click', closeApp);
+      exitBtn.addEventListener('click', closeApp);
+      expandBtn.addEventListener('click', toggleFill);
       overlay.addEventListener('click', (e) => { if (e.target === overlay) closeApp(); });
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && overlay.classList.contains('is-open')) closeApp();
