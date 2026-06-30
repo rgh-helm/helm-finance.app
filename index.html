@@ -375,7 +375,7 @@
           <polyline points="7 10 12 15 17 10"/>
           <line x1="12" y1="15" x2="12" y2="3"/>
         </svg>
-        Download for <span id="os-label">your OS</span>
+        <span id="dl-label">Download for <span id="os-label">your OS</span></span>
       </a>
       <a href="https://github.com/rgh-helm/Helm" class="btn-ghost">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
@@ -543,7 +543,22 @@
       const OWNER = 'rgh-helm';     // ← your GitHub username
       const REPO  = 'Helm'; // ← your app repo name
 
+      // iOS Safari's UA string contains the literal substring "like Mac OS
+      // X" (it's there for legacy compatibility-sniffing reasons), so a
+      // naive `ua.includes('mac')` check matches iPhones too. Check for
+      // mobile/touch devices first, and treat iPadOS — which deliberately
+      // reports itself as "Macintosh" — as mobile via its touch points.
+      function isMobileDevice() {
+        const ua = navigator.userAgent;
+        if (/iPhone|iPod|Android|Mobi/i.test(ua)) return true;
+        if (/iPad/i.test(ua)) return true;
+        // iPadOS 13+ masquerades as desktop Safari on a Mac.
+        if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) return true;
+        return false;
+      }
+
       function detectOS() {
+        if (isMobileDevice()) return { label: 'Desktop', exts: [], mobile: true };
         const ua = navigator.userAgent.toLowerCase();
         if (ua.includes('win')) return { label: 'Windows', exts: ['.exe', '.msi', '-windows', '-win'] };
         if (ua.includes('mac')) return { label: 'macOS',   exts: ['.dmg', '-macos', '-mac', '-darwin'] };
@@ -563,14 +578,24 @@
           if (!res.ok) throw new Error(`GitHub API ${res.status}`);
           const data = await res.json();
 
-          const { label, exts } = detectOS();
-          const primary = data.assets.length ? pickAsset(data.assets, exts) : null;
+          const { label, exts, mobile } = detectOS();
+          const primary = !mobile && data.assets.length ? pickAsset(data.assets, exts) : null;
 
           document.getElementById('version-tag').textContent = data.tag_name;
-          document.getElementById('os-label').textContent    = label;
 
           const btn = document.getElementById('dl-btn');
-          btn.href = primary ? primary.browser_download_url : data.html_url;
+          const dlLabel = document.getElementById('dl-label');
+          if (mobile) {
+            // There's no iOS/Android build — point this at the releases
+            // page itself (e.g. to grab the desktop link later) instead
+            // of guessing at a binary, and relabel it so it doesn't read
+            // like a phone download.
+            dlLabel.textContent = 'Get the desktop app';
+            btn.href = data.html_url;
+          } else {
+            document.getElementById('os-label').textContent = label;
+            btn.href = primary ? primary.browser_download_url : data.html_url;
+          }
 
           const list = document.getElementById('asset-list');
           const platforms = [
@@ -597,7 +622,7 @@
         } catch (err) {
           document.getElementById('version-tag').textContent = 'see releases';
           document.getElementById('dl-btn').href = `https://github.com/${OWNER}/${REPO}/releases`;
-          document.getElementById('os-label').textContent = '';
+          document.getElementById('dl-label').textContent = 'View downloads on GitHub';
         }
       }
 
