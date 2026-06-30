@@ -1,0 +1,1 @@
+const A=["#1B4332","#C99A3B","#3A6E5A","#3A6EA5","#C77B26","#2F7D52","#B3402F","#6B5B95"];function l(o,c=[]){var a;const r=(a=c.find(t=>t.name===o))==null?void 0:a.color;if(r)return r;const e=String(o||"");let n=0;for(let t=0;t<e.length;t++)n=n*31+e.charCodeAt(t)|0;return A[Math.abs(n)%A.length]}export{l as c};
