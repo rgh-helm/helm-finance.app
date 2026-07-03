@@ -48,7 +48,7 @@ function onDrop(e) {
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-base-100 px-4" data-theme="ledger">
+  <div class="min-h-dvh flex items-center justify-center bg-base-100 px-4 py-6" data-theme="ledger">
     <div class="w-full max-w-md space-y-6">
       <div class="text-center space-y-2">
         <h1 class="font-display text-3xl font-semibold">Helm</h1>

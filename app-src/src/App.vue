@@ -63,11 +63,11 @@ const showOnboarding = computed(() => appReady.value && !settings.onboardingComp
 
 <template>
   <DataGate v-if="needsDataGate" @ready="handleDataReady" />
-  <div v-else class="min-h-screen flex flex-col" :data-theme="settings.theme">
+  <div v-else class="min-h-dvh flex flex-col" :data-theme="settings.theme">
     <NauticalBackground />
     <NavBar class="sticky top-0 z-10" />
     <div class="flex-1 overflow-y-auto">
-      <main class="max-w-6xl mx-auto px-4 lg:px-8 py-8 w-full">
+      <main class="max-w-6xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-8 w-full">
         <div style="position: relative; z-index: 1;">
           <RouterView />
         </div>

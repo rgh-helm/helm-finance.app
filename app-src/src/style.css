@@ -17,11 +17,19 @@ main > * {
 
 html, body {
   height: 100%;
+  /* iOS Safari's address bar resizes the viewport as you scroll, which
+     makes 100% (relative to a stale 100vh) jump around. dvh tracks the
+     *actual* visible viewport; vh stays as a fallback for older browsers. */
+  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 #app {
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }

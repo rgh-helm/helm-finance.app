@@ -120,7 +120,7 @@ async function finish() {
   <!-- Full-screen overlay -->
   <Teleport to="body">
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-base-300/80 backdrop-blur-sm">
-      <div class="w-full max-w-2xl mx-4 bg-base-100 rounded-2xl shadow-2xl overflow-hidden flex flex-col" style="max-height: 90vh">
+      <div class="w-full max-w-2xl mx-3 sm:mx-4 bg-base-100 rounded-2xl shadow-2xl overflow-hidden flex flex-col" style="max-height: 92dvh">
 
         <!-- Progress bar -->
         <div class="h-1 bg-base-300 shrink-0">
@@ -131,7 +131,7 @@ async function finish() {
         </div>
 
         <!-- Step content -->
-        <div class="flex-1 overflow-y-auto p-8">
+        <div class="flex-1 overflow-y-auto p-4 sm:p-8">
 
           <!-- ── Step 0: Welcome ── -->
           <div v-if="step === 0" class="space-y-5">
@@ -387,7 +387,7 @@ async function finish() {
         </div>
 
         <!-- Footer nav -->
-        <div class="shrink-0 px-8 py-5 border-t border-base-300 flex items-center justify-between">
+        <div class="shrink-0 px-4 sm:px-8 py-4 sm:py-5 border-t border-base-300 flex flex-wrap items-center justify-between gap-3">
           <!-- Step counter -->
           <div class="flex items-center gap-1.5">
             <div
