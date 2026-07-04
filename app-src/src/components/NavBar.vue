@@ -41,7 +41,7 @@ function toggleTheme() {
     </div>
 
     <!-- Desktop nav: hidden below lg, full horizontal menu at lg+ -->
-    <div class="hidden md:flex flex-none items-center gap-1">
+    <div class="hidden min-[1120px]:flex flex-none items-center gap-1">
       <ul class="menu menu-horizontal gap-1 text-sm">
         <li v-for="link in links" :key="link.to">
           <RouterLink :to="link.to" class="rounded-md" active-class="menu-active"
@@ -57,7 +57,7 @@ function toggleTheme() {
     </div>
 
     <!-- Mobile: theme toggle + hamburger, menu collapses below lg -->
-    <div class="flex md:hidden flex-none items-center gap-1">
+    <div class="flex min-[1120px]:hidden flex-none items-center gap-1">
       <button type="button" class="btn btn-ghost btn-sm btn-square"
         :title="settings.theme === 'helm-dark' ? 'Switch to light mode' : 'Switch to dark mode'" @click="toggleTheme">
         <svg v-if="settings.theme === 'helm-dark'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
@@ -98,6 +98,6 @@ function toggleTheme() {
     </Transition>
 
     <!-- Tap-out backdrop for the mobile menu -->
-    <div v-if="mobileOpen" class="md:hidden fixed inset-0 z-10" style="top: 0;" @click="mobileOpen = false"></div>
+    <div v-if="mobileOpen" class="min-[1120px]:hidden fixed inset-0 z-10" style="top: 0;" @click="mobileOpen = false"></div>
   </div>
 </template>
