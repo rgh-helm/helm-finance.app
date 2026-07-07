@@ -2,18 +2,19 @@
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useSettingsStore } from '../stores/settingsStore'
+import { Grid, Edit, Wallet, History, CreditCard, Flag, Home, Cog } from '@boxicons/vue'
 
 const route = useRoute()
 const settings = useSettingsStore()
 const links = [
-  { to: '/', label: 'Dashboard' },
-  { to: '/entry', label: 'Monthly Entry' },
-  { to: '/accounts', label: 'Accounts' },
-  { to: '/history', label: 'History' },
-  { to: '/cards', label: 'Credit Cards' },
-  { to: '/goals', label: 'Goals' },
-  { to: '/affordability', label: 'Affordability' },
-  { to: '/settings', label: 'Settings' },
+  { to: '/', label: 'Dashboard', icon: Grid },
+  { to: '/entry', label: 'Monthly Entry', icon: Edit },
+  { to: '/accounts', label: 'Accounts', icon: Wallet },
+  { to: '/history', label: 'History', icon: History },
+  { to: '/cards', label: 'Credit Cards', icon: CreditCard },
+  { to: '/goals', label: 'Goals', icon: Flag },
+  { to: '/affordability', label: 'Affordability', icon: Home },
+  { to: '/settings', label: 'Settings', icon: Cog },
 ]
 
 const mobileOpen = ref(false)
@@ -23,6 +24,22 @@ function toggleTheme() {
   settings.setTheme(settings.theme === 'helm-dark' ? 'helm' : 'helm-dark')
 }
 </script>
+
+<style scoped>
+/* @boxicons/vue renders its own <svg> as a child of .nav-icon, which scoped
+   styles can't reach without :deep() — plain scoping only tags elements this
+   component's own template renders, not what a child component outputs.
+   !important sidesteps whatever specificity daisyUI's `.menu svg` rule (or
+   anything else in the global stylesheet) happens to carry. */
+.nav-icon {
+  width: 20px;
+  height: 20px;
+}
+.nav-icon :deep(svg) {
+  width: 20px !important;
+  height: 20px !important;
+}
+</style>
 
 <template>
   <div class="navbar bg-base-100 border-b border-base-300 px-3 sm:px-4 lg:px-8 relative z-20 overflow-visible">
@@ -40,12 +57,13 @@ function toggleTheme() {
       </div>
     </div>
 
-    <!-- Desktop nav: hidden below lg, full horizontal menu at lg+ -->
-    <div class="hidden min-[1120px]:flex flex-none items-center gap-1">
+    <!-- Desktop nav: full icon+label menu, only once there's room for all 8 items -->
+    <div class="hidden min-[1360px]:flex flex-none items-center gap-1">
       <ul class="menu menu-horizontal gap-1 text-sm">
         <li v-for="link in links" :key="link.to">
-          <RouterLink :to="link.to" class="rounded-md" active-class="menu-active"
+          <RouterLink :to="link.to" class="rounded-md flex items-center gap-1.5" active-class="menu-active"
             :class="{ 'bg-primary text-primary-content': route.path === link.to }">
+            <component :is="link.icon" size="12" />
             {{ link.label }}
           </RouterLink>
         </li>
@@ -56,8 +74,29 @@ function toggleTheme() {
       </button>
     </div>
 
-    <!-- Mobile: theme toggle + hamburger, menu collapses below lg -->
-    <div class="flex min-[1120px]:hidden flex-none items-center gap-1">
+    <!-- Icon-only nav: the intermediate tier — labels no longer fit, but there's -->
+    <!-- still enough width to avoid collapsing all the way to a hamburger menu. -->
+    <!-- Tooltips (daisyUI) stand in for the missing labels. -->
+    <div class="hidden min-[720px]:flex min-[1360px]:hidden flex-none items-center gap-1">
+      <ul class="menu menu-horizontal gap-1">
+        <li v-for="link in links" :key="link.to" class="tooltip tooltip-bottom" :data-tip="link.label">
+          <RouterLink :to="link.to" class="rounded-md w-9 h-9 flex items-center justify-center" active-class="menu-active"
+            :class="{ 'bg-primary text-primary-content': route.path === link.to }">
+            <span class="nav-icon inline-flex items-center justify-center">
+              <component :is="link.icon" />
+            </span>
+          </RouterLink>
+        </li>
+      </ul>
+      <button type="button" class="btn btn-ghost btn-sm btn-square"
+        :title="settings.theme === 'helm-dark' ? 'Switch to light mode' : 'Switch to dark mode'" @click="toggleTheme">
+        <svg v-if="settings.theme === 'helm-dark'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+      </button>
+    </div>
+
+    <!-- Mobile: theme toggle + hamburger, only once there's no room even for icons -->
+    <div class="flex min-[720px]:hidden flex-none items-center gap-1">
       <button type="button" class="btn btn-ghost btn-sm btn-square"
         :title="settings.theme === 'helm-dark' ? 'Switch to light mode' : 'Switch to dark mode'" @click="toggleTheme">
         <svg v-if="settings.theme === 'helm-dark'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
@@ -86,11 +125,12 @@ function toggleTheme() {
     >
       <ul
         v-if="mobileOpen"
-        class="lg:hidden menu absolute left-0 right-0 top-full mx-2 mt-1 p-2 bg-base-100 border border-base-300 rounded-box shadow-xl text-sm z-30"
+        class="min-[720px]:hidden menu absolute left-0 right-0 top-full mx-2 mt-1 p-2 bg-base-100 border border-base-300 rounded-box shadow-xl text-sm z-30"
       >
         <li v-for="link in links" :key="link.to">
-          <RouterLink :to="link.to" class="rounded-md py-2.5" active-class="menu-active"
+          <RouterLink :to="link.to" class="rounded-md py-2.5 flex items-center gap-1.5" active-class="menu-active"
             :class="{ 'bg-primary text-primary-content': route.path === link.to }">
+            <component :is="link.icon" size="12" />
             {{ link.label }}
           </RouterLink>
         </li>
@@ -98,6 +138,6 @@ function toggleTheme() {
     </Transition>
 
     <!-- Tap-out backdrop for the mobile menu -->
-    <div v-if="mobileOpen" class="min-[1120px]:hidden fixed inset-0 z-10" style="top: 0;" @click="mobileOpen = false"></div>
+    <div v-if="mobileOpen" class="min-[720px]:hidden fixed inset-0 z-10" style="top: 0;" @click="mobileOpen = false"></div>
   </div>
 </template>

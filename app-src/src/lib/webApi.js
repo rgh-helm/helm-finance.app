@@ -7,7 +7,7 @@
 import dataEngine from './dataEngine.js'
 import { parseCardCsv } from './csvImport.js'
 
-const APP_VERSION = '0.52.1'
+const APP_VERSION = '0.53.1'
 
 // Opens a native file picker for the given accept type and resolves with
 // the selected File, or null if the user cancels. There's no reliable
@@ -151,8 +151,8 @@ const api = {
       try {
         const raw = await readFileAsText(file)
         const payload = JSON.parse(raw)
-        dataEngine.restoreFromPayload(payload)
-        return { ok: true }
+        const { warnings } = dataEngine.restoreFromPayload(payload)
+        return { ok: true, warnings }
       } catch (err) {
         return { ok: false, error: err.message }
       }

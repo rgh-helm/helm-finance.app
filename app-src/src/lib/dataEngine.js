@@ -645,8 +645,12 @@ function restoreFromPayload(payload) {
   if (!payload || !Array.isArray(payload.snapshots) || !Array.isArray(payload.scenarios)) {
     throw new Error('Invalid backup file format.')
   }
+  const warnings = []
   const creditCardsIn = Array.isArray(payload.creditCards) ? payload.creditCards : []
   const cardBalancesIn = Array.isArray(payload.cardBalances) ? payload.cardBalances : []
+  if (!Array.isArray(payload.creditCards)) {
+    warnings.push('No credit card data found in the file — starting with none.')
+  }
 
   const cardIdMap = new Map()
   const creditCards = creditCardsIn.map((c, i) => {
@@ -666,10 +670,16 @@ function restoreFromPayload(payload) {
   })
 
   const current = load()
+  if (!payload.settings) {
+    warnings.push('No settings found in the file — using the app\'s current defaults.')
+  }
   const settings = { ...DEFAULT_SETTINGS, ...(current.settings || {}), ...(payload.settings || {}) }
   const categories = Array.isArray(payload.categories) && payload.categories.length
     ? payload.categories.map((c, i) => ({ id: i + 1, name: c.name }))
     : current.categories
+  if (!Array.isArray(payload.categories) || !payload.categories.length) {
+    warnings.push('No categories found in the file — kept the starter categories.')
+  }
 
   let snapshots, accounts, accountBalances, fundAccounts
 
@@ -694,6 +704,7 @@ function restoreFromPayload(payload) {
     })
     fundAccounts = null
   } else {
+    warnings.push('This backup uses an older data format — accounts will be reconstructed automatically from monthly history.')
     const fundAccountsIn = Array.isArray(payload.fundAccounts) ? payload.fundAccounts : null
     const fundAccountIdMap = new Map()
     fundAccounts = fundAccountsIn
@@ -719,15 +730,21 @@ function restoreFromPayload(payload) {
   const forecastItems = Array.isArray(payload.forecastItems)
     ? payload.forecastItems.map((f, i) => { const { id, ...rest } = f; return { ...rest, id: i + 1 } })
     : []
+  if (!Array.isArray(payload.forecastItems)) {
+    warnings.push('No forecast items found in the file — starting with none.')
+  }
   const incomeOptions = Array.isArray(payload.incomeOptions)
     ? payload.incomeOptions.map((o, i) => { const { id, ...rest } = o; return { ...rest, id: i + 1 } })
     : []
+  if (!Array.isArray(payload.incomeOptions)) {
+    warnings.push('No income source presets found in the file — starting with none.')
+  }
 
   cache = { version: 2, snapshots, scenarios, creditCards, cardBalances, settings, categories, fundAccounts, accounts, accountBalances, forecastItems, incomeOptions }
   migrateAssetFlagsToAccounts(cache)
   migrateToUnifiedAccounts(cache)
   persist()
-  return cache
+  return { warnings }
 }
 
 export default {
