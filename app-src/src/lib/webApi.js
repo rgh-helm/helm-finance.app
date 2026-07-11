@@ -7,7 +7,7 @@
 import dataEngine from './dataEngine.js'
 import { parseCardCsv } from './csvImport.js'
 
-const APP_VERSION = '0.53.1'
+const APP_VERSION = '0.53.8'
 
 // Opens a native file picker for the given accept type and resolves with
 // the selected File, or null if the user cancels. There's no reliable

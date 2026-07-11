@@ -1,7 +1,7 @@
 {
   "name": "helm-web",
   "private": true,
-  "version": "0.53.3-web",
+  "version": "0.53.8-web",
   "description": "A local-only personal finance tracker for house savings and emergency fund goals (browser edition).",
   "type": "module",
   "scripts": {
